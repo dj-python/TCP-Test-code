@@ -13,13 +13,13 @@ class TCPReceiver(threading.Thread):
         self.port = port
         self._running = True
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(('166.79.25.100', self.port))                     # 12345 포트에서 수신
+        self.sock.bind(('166.79.26.142', self.port))                     # 12345 포트에서 수신
         self.sock.listen(1)                                              # 연결 대기
         self.conn = None
 
     def run(self):
         try:
-            print(f"[*] TCP 서버 대기 중... ({self.ip}:{self.port}")
+            print(f"[*] TCP 서버 대기 중... {self.ip}:{self.port}")
             self.conn, addr = self.sock.accept()
             print(f"[+] 클라이언트 연결됨: {addr}")
             while self._running:
@@ -67,4 +67,43 @@ class MainTest():
         time.sleep(0.1)
 
     def receiving(self):
+        receiver = TCPReceiver(self.serverIp, 6571)
+        receiver.start()
+        print("[*] 데이터 수신 시작")
+        return receiver
 
+    def stop_receiving(self, receiver):
+        receiver.stop()
+        print("[*] 데이터 수신 종료")
+
+    def print_received_data(self):
+        receiver = TCPReceiver(self.serverIp, 6571)
+        receiver.start()
+        print("[*] 데이터 수신 시작")
+        while True:
+            try:
+                if receiver.conn:
+                    data = receiver.conn.recv(1024)
+                    if data :
+                        print(f"[+] 수신된 데이터 : {data.decode()}")
+            except Exception as e:
+                print(f"Error: {str(e)}")
+            time.sleep(0.1)
+
+
+
+if __name__ == "__main__":
+    test = MainTest()
+
+    # 데이터 전송
+    test.sending()
+
+    # 데이터 수신
+    receiver = test.receiving()
+
+    # 데이터를 수신하다가 일정 시간 후 종료
+    time.sleep(3)
+    test.stop_receiving(receiver)
+
+    # 수신된 데이터 출력
+    test.print_received_data()
