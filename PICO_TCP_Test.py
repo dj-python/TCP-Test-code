@@ -23,7 +23,7 @@ class MainFW:
             message = W5500.readMessage()
             if message is not None:
                 self.rxMessage = message.decode('utf-8')
-                print(self.rxMessage)
+                print(f"[클라이언트] 수신된 메시지: {self.rxMessage}")
                 self.sendback()
                 self.rxMessage = str()                      # 무한 반복되는 것을 방지하기 위해 변수를 초기화
         except Exception as e:
