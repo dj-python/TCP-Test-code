@@ -27,6 +27,7 @@ class TCPReceiver(threading.Thread):
                     data = self.conn.recv(1024)                           # 최대 1024바이트 수신
                     if not data :
                         break
+                    print(f"[서버] 수신된 데이터: {data.decode()}")
                 except Exception as e :
                     print(f"Error: {str(e)}")
                 time.sleep(0.1)
@@ -66,11 +67,19 @@ class MainTest():
         sender.send_data(self.writeCardIpPort, self.sensorID)
         time.sleep(0.1)
 
-    def receiving(self):
+    def receiving_and_printing(self):
         receiver = TCPReceiver(self.serverIp, 6571)
         receiver.start()
         print("[*] 데이터 수신 시작")
-        return receiver
+        while True:
+            try:
+                if receiver.conn:
+                    data = receiver.conn.recv(1024)
+                    if data:
+                        print(f"[+] 수신된 데이터: {data.decode()}")
+            except Exception as e:
+                print(f"Error: {str(e)}")
+            time.sleep(0.1)
 
     def stop_receiving(self, receiver):
         receiver.stop()
@@ -99,7 +108,7 @@ if __name__ == "__main__":
     test.sending()
 
     # 데이터 수신
-    receiver = test.receiving()
+    receiver = test.receiving_and_printing()
 
     # 데이터를 수신하다가 일정 시간 후 종료
     time.sleep(3)
